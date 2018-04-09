@@ -1,20 +1,37 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"trie"
+	"trie/dictionary"
 )
 
 func main() {
 	t := trie.NewTrie()
 
-	t.Add("Rambunctious")
+	file, err := os.Open("../data/english-words/dictionary.txt")
+	defer file.Close()
 
-	t.Add("Sublime")
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Error opeining file %v, msg %s", file, err.Error()))
+		os.Exit(1)
+	}
 
-	t.Add("Substitue")
+	s := bufio.NewScanner(file)
+	ws := dictionary.NewWordScanner()
+	words := ws.Scan(s)
 
-	t.Add("Rampart")
+	for wd := range words {
+		t.Add(wd)
+	}
 
-	fmt.Println("Done creating the trie")
+	fmt.Println("Done scanning the dictionary.")
+
+	results := t.GetMatches("epi")
+
+	for _, result := range results {
+		fmt.Println(result)
+	}
 }
