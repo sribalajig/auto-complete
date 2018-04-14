@@ -29,8 +29,16 @@ func main() {
 
 	fmt.Println("Done scanning the dictionary.")
 
-	results := t.GetMatches("epi")
+	/*
+		results := t.GetMatches("epi")
 
+			fmt.Println("These are the prefix results")
+			for _, result := range results {
+				fmt.Println(result)
+			}*/
+
+	results := t.MatchAnywhere("freshn")
+	fmt.Println("These are the generic search results")
 	for _, result := range results {
 		fmt.Println(result)
 	}

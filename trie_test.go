@@ -50,3 +50,32 @@ func TestTrie(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestMachAnywhere(t *testing.T) {
+	tr := NewTrie()
+
+	tr.Add("Raven")
+	tr.Add("Raid")
+	tr.Add("Rapid")
+	tr.Add("Rambunctious")
+	tr.Add("Rapacious")
+	tr.Add("Razor")
+	tr.Add("Respect")
+	tr.Add("Rapport")
+	tr.Add("Conscpicuous")
+	tr.Add("Beauty")
+
+	r := tr.MatchAnywhere("Rp")
+
+	if len(r) != 4 {
+		t.Logf("Expected one result, got %d, %s", len(r), r)
+		t.Fail()
+	}
+
+	r = tr.MatchAnywhere("Rz")
+
+	if len(r) != 1 {
+		t.Logf("Expected one result, got %d, %s", len(r), r)
+		t.Fail()
+	}
+}
