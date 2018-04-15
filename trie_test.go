@@ -2,7 +2,13 @@ package trie
 
 import (
 	"testing"
+	"os"
+	"fmt"
+	"bufio"
+	"trie/dictionary"
 )
+
+var results []string
 
 func TestMatchPrefix(t *testing.T) {
 	tr := NewTrie()
@@ -78,4 +84,77 @@ func TestMatchAnywhere(t *testing.T) {
 		t.Logf("Expected %d result(s), got %d, %s", 3, len(r), r)
 		t.Fail()
 	}
+}
+
+func BenchmarkMatchAnywhereSmall(b *testing.B) {
+	var r []string
+
+	for n := 0; n < b.N; n++ {
+		tr := NewTrie()
+
+		tr.Add("Raven")
+		tr.Add("Raid")
+		tr.Add("Rapid")
+		tr.Add("Rambunctious")
+		tr.Add("Rapacious")
+		tr.Add("Razor")
+		tr.Add("Respect")
+		tr.Add("Rapport")
+		tr.Add("Conspicuous")
+		tr.Add("Beauty")
+
+		r = tr.MatchAnywhere("Rap")
+		results = r
+	}
+}
+
+func BenchmarkMatchPrefix(b *testing.B) {
+	var r []string
+
+	for n := 0; n < b.N; n++ {
+		t := NewTrie()
+
+		for wd := range scanWords() {
+			t.Add(wd)
+		}
+
+		r = t.MatchAnywhere("freshn")
+		results = r
+	}
+}
+
+func BenchmarkMatchAnywhere(b *testing.B) {
+	var r []string
+
+	for n := 0; n < b.N; n++ {
+		t := NewTrie()
+
+		for wd := range scanWords() {
+			t.Add(wd)
+		}
+
+		r = t.MatchPrefix("freshn")
+		results = r
+	}
+}
+
+func BenchmarkFileScan(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		scanWords()
+	}
+}
+
+func scanWords() <-chan string {
+	file, err := os.Open("./data/english-words/dictionary.txt")
+	defer file.Close()
+
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Error opeining file %v, msg %s", file, err.Error()))
+		os.Exit(1)
+	}
+
+	s := bufio.NewScanner(file)
+	ws := dictionary.NewWordScanner()
+
+	return ws.Scan(s)
 }

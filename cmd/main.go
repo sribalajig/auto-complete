@@ -30,7 +30,7 @@ func main() {
 	fmt.Println("Done scanning the dictionary.")
 
 	/*
-		results := t.GetMatches("epi")
+		results := t.MatchPrefix("epi")
 
 			fmt.Println("These are the prefix results")
 			for _, result := range results {
