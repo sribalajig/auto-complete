@@ -6,83 +6,69 @@ import (
 	"fmt"
 	"bufio"
 	"trie/dictionary"
+	"github.com/stretchr/testify/assert"
 )
 
 var results []string
 
+
+var prefixTestCases = []struct{
+	Prefix string
+	ExpectedMatches []string
+} {
+	{ "Rap", []string{"Rapacious", "Rapport", "Rapid"}},
+	{ "Ra", []string{
+		"Raven",
+		"Raid",
+		"Rapid",
+		"Rapacious",
+		"Rapport",
+		"Rambunctious",
+		"Razor"},
+	},
+	{ "R",
+		[]string{
+			"Rapacious",
+			"Rapport",
+			"Raven",
+			"Raid",
+			"Rambunctious",
+			"Respect",
+			"Razor",
+			"Rapid",
+		},
+	},
+	{ "B", []string{"Beauty"}},
+}
+
+
 func TestMatchPrefix(t *testing.T) {
-	tr := NewTrie()
+	tr := createTrie()
 
-	tr.Add("Raven")
-	tr.Add("Raid")
-	tr.Add("Rapid")
-	tr.Add("Rambunctious")
-	tr.Add("Rapacious")
-	tr.Add("Razor")
-	tr.Add("Respect")
-	tr.Add("Rapport")
-	tr.Add("Conspicuous")
-	tr.Add("Beauty")
+	for _, testCase := range prefixTestCases {
+		results := tr.MatchPrefix(testCase.Prefix)
 
-	matches := tr.MatchPrefix("Rap")
-	if len(matches) != 3 {
-		t.Logf("Expected %d results, got %d", 2, len(matches))
-		t.Log(matches)
-		t.Fail()
-	}
-
-	matches = tr.MatchPrefix("R")
-	if len(matches) != 8 {
-		t.Log(matches)
-		t.Logf("Expected %d matches, got %d", 8, len(matches))
-		t.Fail()
-	}
-
-	matches = tr.MatchPrefix("Ra")
-	if len(matches) != 7 {
-		t.Log(matches)
-		t.Logf("Expected %d matches, got %d", 8, len(matches))
-		t.Fail()
-	}
-
-	matches = tr.MatchPrefix("B")
-	if len(matches) != 1 {
-		t.Log(matches)
-		t.Logf("Expected %d matches, got %d", 1, len(matches))
-		t.Fail()
+		assert.ElementsMatch(t, testCase.ExpectedMatches, results)
 	}
 }
 
+var matchAnywhereTestCases = []struct{
+	Substring string
+	ExpectedMatches []string
+} {
+	{ "Rp", []string{"Rapacious", "Rapport", "Rapid", "Respect"}},
+	{ "Rz", []string{"Razor"},},
+	{ "au", []string{"Rapacious", "Rambunctious", "Beauty"}},
+	{ "B", []string{"Beauty"}},
+}
+
 func TestMatchAnywhere(t *testing.T) {
-	tr := NewTrie()
+	tr := createTrie()
 
-	tr.Add("Raven")
-	tr.Add("Raid")
-	tr.Add("Rapid")
-	tr.Add("Rambunctious")
-	tr.Add("Rapacious")
-	tr.Add("Razor")
-	tr.Add("Respect")
-	tr.Add("Rapport")
-	tr.Add("Conspicuous")
-	tr.Add("Beauty")
+	for _, testCase := range matchAnywhereTestCases {
+		results := tr.MatchAnywhere(testCase.Substring)
 
-	r := tr.MatchAnywhere("Rp")
-	if len(r) != 4 {
-		t.Logf("Expected %d result(s), got %d, %s", 4, len(r), r)
-		t.Fail()
-	}
-
-	r = tr.MatchAnywhere("Rz")
-	if len(r) != 1 {
-		t.Logf("Expected %d result(s), got %d, %s", 1, len(r), r)
-		t.Fail()
-	}
-
-	r = tr.MatchAnywhere("au");
-	if len(r) != 3 {
-		t.Logf("Expected %d result(s), got %d, %s", 3, len(r), r)
-		t.Fail()
+		assert.ElementsMatch(t, testCase.ExpectedMatches, results)
 	}
 }
 
@@ -90,18 +76,7 @@ func BenchmarkMatchAnywhereSmall(b *testing.B) {
 	var r []string
 
 	for n := 0; n < b.N; n++ {
-		tr := NewTrie()
-
-		tr.Add("Raven")
-		tr.Add("Raid")
-		tr.Add("Rapid")
-		tr.Add("Rambunctious")
-		tr.Add("Rapacious")
-		tr.Add("Razor")
-		tr.Add("Respect")
-		tr.Add("Rapport")
-		tr.Add("Conspicuous")
-		tr.Add("Beauty")
+		tr := createTrie()
 
 		r = tr.MatchAnywhere("Rap")
 		results = r
@@ -157,4 +132,21 @@ func scanWords() <-chan string {
 	ws := dictionary.NewWordScanner()
 
 	return ws.Scan(s)
+}
+
+func createTrie() *Trie {
+	tr := NewTrie()
+
+	tr.Add("Raven")
+	tr.Add("Raid")
+	tr.Add("Rapid")
+	tr.Add("Rambunctious")
+	tr.Add("Rapacious")
+	tr.Add("Razor")
+	tr.Add("Respect")
+	tr.Add("Rapport")
+	tr.Add("Conspicuous")
+	tr.Add("Beauty")
+
+	return tr
 }
