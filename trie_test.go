@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestTrie(t *testing.T) {
+func TestMatchPrefix(t *testing.T) {
 	tr := NewTrie()
 
 	tr.Add("Raven")
@@ -15,35 +15,31 @@ func TestTrie(t *testing.T) {
 	tr.Add("Razor")
 	tr.Add("Respect")
 	tr.Add("Rapport")
-	tr.Add("Conscpicuous")
+	tr.Add("Conspicuous")
 	tr.Add("Beauty")
 
-	matches := tr.GetMatches("Rap")
-
+	matches := tr.MatchPrefix("Rap")
 	if len(matches) != 3 {
 		t.Logf("Expected %d results, got %d", 2, len(matches))
 		t.Log(matches)
 		t.Fail()
 	}
 
-	matches = tr.GetMatches("R")
-
+	matches = tr.MatchPrefix("R")
 	if len(matches) != 8 {
 		t.Log(matches)
 		t.Logf("Expected %d matches, got %d", 8, len(matches))
 		t.Fail()
 	}
 
-	matches = tr.GetMatches("Ra")
-
+	matches = tr.MatchPrefix("Ra")
 	if len(matches) != 7 {
 		t.Log(matches)
 		t.Logf("Expected %d matches, got %d", 8, len(matches))
 		t.Fail()
 	}
 
-	matches = tr.GetMatches("B")
-
+	matches = tr.MatchPrefix("B")
 	if len(matches) != 1 {
 		t.Log(matches)
 		t.Logf("Expected %d matches, got %d", 1, len(matches))
@@ -51,7 +47,7 @@ func TestTrie(t *testing.T) {
 	}
 }
 
-func TestMachAnywhere(t *testing.T) {
+func TestMatchAnywhere(t *testing.T) {
 	tr := NewTrie()
 
 	tr.Add("Raven")
@@ -62,20 +58,24 @@ func TestMachAnywhere(t *testing.T) {
 	tr.Add("Razor")
 	tr.Add("Respect")
 	tr.Add("Rapport")
-	tr.Add("Conscpicuous")
+	tr.Add("Conspicuous")
 	tr.Add("Beauty")
 
 	r := tr.MatchAnywhere("Rp")
-
 	if len(r) != 4 {
-		t.Logf("Expected one result, got %d, %s", len(r), r)
+		t.Logf("Expected %d result(s), got %d, %s", 4, len(r), r)
 		t.Fail()
 	}
 
 	r = tr.MatchAnywhere("Rz")
-
 	if len(r) != 1 {
-		t.Logf("Expected one result, got %d, %s", len(r), r)
+		t.Logf("Expected %d result(s), got %d, %s", 1, len(r), r)
+		t.Fail()
+	}
+
+	r = tr.MatchAnywhere("au");
+	if len(r) != 3 {
+		t.Logf("Expected %d result(s), got %d, %s", 3, len(r), r)
 		t.Fail()
 	}
 }

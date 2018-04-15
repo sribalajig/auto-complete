@@ -50,7 +50,7 @@ func (t *Trie) Add(word string) {
 	}
 }
 
-func (t *Trie) GetMatches(prefix string) []string {
+func (t *Trie) MatchPrefix(prefix string) []string {
 	if prefix == "" {
 		return []string{}
 	}
@@ -70,56 +70,14 @@ func (t *Trie) GetMatches(prefix string) []string {
 	return depthFirstEnum(cur, prefix[:len(prefix)-1])
 }
 
-func (t *Trie) MatchAnywhere(s string) []string {
-	if s == "" {
-		return []string{}
-	}
-
-	q := new(queue)
-	q.Enqueue(t.Root)
-
-	var results = []string{}
-
-	for _, c := range s {
-		var nodes []*Node
-
-		for !q.IsEmpty() {
-			node, _ := q.Dequeue()
-			nodes = append(nodes, node)
-		}
-
-		for _, node := range nodes {
-			children := findAnywhere(c, node)
-
-			for _, child := range children {
-				q.Enqueue(child)
-			}
-		}
-
-		if q.IsEmpty() {
-			return results
+func find(ch rune, n *Node) *Node {
+	for _, c := range n.Children {
+		if c.Value == ch {
+			return c
 		}
 	}
 
-	for !q.IsEmpty() {
-		n, _ := q.Dequeue()
-
-		var prefix string
-		temp := n.Parent
-
-		for temp.Parent != nil {
-			prefix = fmt.Sprintf("%s%c", prefix, temp.Value)
-			temp = temp.Parent
-		}
-
-		r := depthFirstEnum(n, reverse(prefix))
-
-		for _, item := range r {
-			results = append(results, item)
-		}
-	}
-
-	return results
+	return nil
 }
 
 func depthFirstEnum(n *Node, s string) []string {
@@ -144,14 +102,51 @@ func depthFirstEnum(n *Node, s string) []string {
 	return results
 }
 
-func find(ch rune, n *Node) *Node {
-	for _, c := range n.Children {
-		if c.Value == ch {
-			return c
+func (t *Trie) MatchAnywhere(s string) []string {
+	var results []string
+
+	curLevel := []*Node{t.Root}
+
+	for _, c := range s {
+		curLevel = getMatchingChildren(curLevel, c)
+
+		if len(curLevel) == 0 {
+			return []string{}
 		}
 	}
 
-	return nil
+	for _, n := range curLevel {
+		reversePrefix := enumPathToRoot(n)
+
+		r := depthFirstEnum(n, reverse(reversePrefix))
+
+		for _, item := range r {
+			results = append(results, item)
+		}
+	}
+
+	return results
+}
+
+func getMatchingChildren(nodes []*Node, c rune) []*Node {
+	q := new(queue)
+
+	for _, node := range nodes {
+		children := findAnywhere(c, node)
+
+		for _, child := range children {
+			q.Enqueue(child)
+		}
+	}
+
+	var result []*Node
+
+	for !q.IsEmpty() {
+		n, _ := q.Dequeue()
+		result = append(result, n)
+	}
+
+	return result
 }
 
 func findAnywhere(ch rune, n *Node) []*Node {
@@ -166,6 +161,18 @@ func findAnywhere(ch rune, n *Node) []*Node {
 	}
 
 	return results
+}
+
+func enumPathToRoot(n *Node) string {
+	var path string
+	temp := n.Parent
+
+	for temp.Parent != nil {
+		path = fmt.Sprintf("%s%c", path, temp.Value)
+		temp = temp.Parent
+	}
+
+	return path
 }
 
 func dfs(root *Node, ch rune) []*Node {
