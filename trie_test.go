@@ -11,6 +11,22 @@ import (
 
 var results []string
 
+func createTrie() *Trie {
+	tr := NewTrie()
+
+	tr.Add("Raven")
+	tr.Add("Raid")
+	tr.Add("Rapid")
+	tr.Add("Rambunctious")
+	tr.Add("Rapacious")
+	tr.Add("Razor")
+	tr.Add("Respect")
+	tr.Add("Rapport")
+	tr.Add("Conspicuous")
+	tr.Add("Beauty")
+
+	return tr
+}
 
 var prefixTestCases = []struct{
 	Prefix string
@@ -132,21 +148,4 @@ func scanWords() <-chan string {
 	ws := dictionary.NewWordScanner()
 
 	return ws.Scan(s)
-}
-
-func createTrie() *Trie {
-	tr := NewTrie()
-
-	tr.Add("Raven")
-	tr.Add("Raid")
-	tr.Add("Rapid")
-	tr.Add("Rambunctious")
-	tr.Add("Rapacious")
-	tr.Add("Razor")
-	tr.Add("Respect")
-	tr.Add("Rapport")
-	tr.Add("Conspicuous")
-	tr.Add("Beauty")
-
-	return tr
 }
